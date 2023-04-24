@@ -1,8 +1,18 @@
 #include "SparseMatrix.h"
 
+#ifndef MAX
+#define MAX(a,b) ((a > b) ? a : b)
+#endif
+
 SparseMatrix::SparseMatrix(){
     this->numRows = 0;
     this->numCols = 0;
+    this->head = nullptr;
+    this->tail = nullptr;
+}
+SparseMatrix::SparseMatrix(int p_numRows, int p_numCols){
+    this->numRows = p_numRows;
+    this->numCols = p_numCols;
     this->head = nullptr;
     this->tail = nullptr;
 }
@@ -67,6 +77,9 @@ SparseMatrix SparseMatrix::operator+(SparseMatrix& p_matrix){
 bool SparseMatrix::can_multiply(SparseMatrix& A, SparseMatrix& B){
     return A.getNumCols() == B.getNumRows();
 }
+bool SparseMatrix::can_add(SparseMatrix& A, SparseMatrix& B){
+    return (A.getNumCols() == B.getNumCols() && A.getNumRows() == B.getNumRows());
+}
 
 void SparseMatrix::print(std::ostream& os){
     os << std::fixed << std::setprecision(2);
@@ -87,6 +100,52 @@ void SparseMatrix::print(std::ostream& os){
 int SparseMatrix::getNumRows(){return this->numRows;}
 int SparseMatrix::getNumCols(){return this->numCols;}
 
+void SparseMatrix::push_back(int m, int n, double value){ // Specifically for ease of copying sparse matricies
+    if(this->head == nullptr){
+        this->head = new SparseNode(m,n,value);
+        this->tail = this->head;
+    }else{
+        SparseNode* temp = this->head;
+
+        while(temp->next != nullptr){
+            temp = temp->next;
+        }
+
+        temp->next = new SparseNode(m,n,value);
+    }
+}
+void SparseMatrix::push_front(int m, int n, double value){
+    if(this->head == nullptr){
+        this->head = new SparseNode(m,n,value);
+        this->tail = this->head;
+    }else{
+        SparseNode* temp = new SparseNode(m,n,value, this->head);
+        this->head = temp;
+    }
+}
+void SparseMatrix::remove(int m, int n){
+    SparseNode* temp = this->head;
+    SparseNode* previous = nullptr;
+    SparseNode test = SparseNode(m,n,0);
+
+    // Search for the element
+    while(temp != nullptr && !(*temp == test)){
+        previous = temp;
+        temp = temp->next;
+    }
+
+    if(temp != nullptr){
+        // Special case: deleting the head
+        if(temp == this->head){
+            this->head = temp->next;
+        }else{
+            previous->next = temp->next;
+        }
+
+        temp->next = nullptr;
+        delete temp;
+    }
+}
 /*
 //constructor
 SparseList::SparseList(std::vector<int> p_rowVec, std::vector<int> p_colVec, std::vector<int> p_valueVec) {

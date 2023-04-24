@@ -22,11 +22,13 @@ private:
     void remove(int,int);
 
     bool can_multiply(SparseMatrix& A, SparseMatrix& B);
+    bool can_add(SparseMatrix& A, SparseMatrix& B);
     
 
 public:
 
     SparseMatrix();
+    SparseMatrix(int,int);
     SparseMatrix(std::string);
     SparseMatrix(std::vector<std::vector<double>>);
     ~SparseMatrix();
