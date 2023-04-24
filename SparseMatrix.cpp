@@ -1,4 +1,4 @@
-#include "SparseMatrix.h"
+/*#include "SparseMatrix.h"
 
 SparseMatrix::SparseMatrix(int p_n) {
     nRows = p_n;
@@ -98,7 +98,6 @@ SparseMatrix SparseMatrix::operator+(const SparseMatrix &p_add) {
 }
 
 //multiplier
-///*
 SparseMatrix SparseMatrix::operator*(const SparseMatrix &p_mult) {
     //creates left 2D vector from caller
     std::vector<std::vector<int>> left = this->toVector2d();
@@ -129,7 +128,6 @@ SparseMatrix SparseMatrix::operator*(const SparseMatrix &p_mult) {
     //new matrix created from the sum
     return (SparseMatrix(sum)) ;
 }
-//*/
 
 //insert
 void SparseMatrix::insert(int p_row, int p_col, int p_val){
@@ -166,7 +164,6 @@ SparseMatrix::SparseMatrix(std::vector<std::vector<int>> p_vector) {
 std::vector<std::vector<int>> SparseMatrix::toVector2d() const {
     std::vector<std::vector<int>> full = zeroVector2d(this->nRows, this->nCols);
 
-/******************************************************/
     SparseNode* temp;
     temp = this->ll.getHead();
 
@@ -196,7 +193,7 @@ std::vector<std::vector<int>> SparseMatrix::zeroVector2d(int p_row, int p_col) c
 
     return zero;
 }
-
+*/
 
 
 

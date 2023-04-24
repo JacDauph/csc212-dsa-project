@@ -1,4 +1,4 @@
-#ifndef DSA_DRAFT_SPARSEMATRIX_H
+/*#ifndef DSA_DRAFT_SPARSEMATRIX_H
 #define DSA_DRAFT_SPARSEMATRIX_H
 
 #include <vector>
@@ -47,3 +47,4 @@ public:
 
 
 #endif //DSA_DRAFT_SPARSEMATRIX_H
+*/
