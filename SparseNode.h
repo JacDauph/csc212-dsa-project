@@ -8,7 +8,7 @@ private:
     double value;
     SparseNode* next;
 
-    friend class SparseList;
+    friend class SparseMatrix;
 
 public:
     SparseNode(int p_row, int p_col, double p_val);

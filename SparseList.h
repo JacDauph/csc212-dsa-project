@@ -1,36 +1,50 @@
-#ifndef DSA_DRAFT_SPARSELIST_H
-#define DSA_DRAFT_SPARSELIST_H
+#pragma once
 
-#include <vector>
 #include <iostream>
+#include <iomanip>
+#include <string>
+#include <vector>
+#include <fstream>
+#include <sstream>
+#include <ostream>
 #include "SparseNode.h"
 
-class SparseList {
+class SparseMatrix {
 private:
+
     SparseNode* head;
+    SparseNode* tail;
+    int numRows; // Number of rows, used for size
+    int numCols; // Number of columns, used for size
 
-    void push_front(int data);
+    void push_back(int,int,double);
+    void push_front(int,int,double);
+    void remove(int,int);
 
-    //TODO?
-    //make friends of sparsemarix
+    bool can_multiply(SparseMatrix& A, SparseMatrix& B);
+    
+
 public:
-    //make list with set of vectors (row, collums, value)
-    SparseList(std::vector<int> p_rowVec, std::vector<int> p_colVec, std::vector<int> p_valueVec);
-    ~SparseList();
-    //copy constructor
-    SparseList(const SparseList& p_copySrc);
-    void push_front(int p_row, int p_col, int p_value);
-    std::string toString();
-    void output();
-    SparseNode * getHead() const;
 
-    SparseList();
+    SparseMatrix();
+    SparseMatrix(std::string);
+    SparseMatrix(std::vector<std::vector<double>>);
+    ~SparseMatrix();
+
+    SparseMatrix(SparseMatrix&);
+
+    SparseMatrix multiply(SparseMatrix& A, SparseMatrix& B);
+    SparseMatrix add(SparseMatrix& A, SparseMatrix& B);
+
+    SparseMatrix operator*(SparseMatrix& p_matrix);
+    SparseMatrix operator+(SparseMatrix& p_matrix);
+    
+    void modify(int,int,double);
+
+    void print(std::ostream& os = std::cout);
+
+    int getNumRows();
+    int getNumCols();
+    SparseNode* getHead();
+    SparseNode* getTail();
 };
-
-
-
-
-
-
-
-#endif //DSA_DRAFT_SPARSELIST_H
