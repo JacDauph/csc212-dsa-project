@@ -1,243 +1,154 @@
-/*#include "SparseMatrix.h"
+#include "SparseMatrix.h"
 
-SparseMatrix::SparseMatrix(int p_n) {
-    nRows = p_n;
-    nCols = p_n;
-    //creates empty list
-    //ll = SparseList();
-    //creates 3 vectors
-    std::vector<int> values;
-    std::vector<int> rows;
-    std::vector<int> cols;
-    // just populates diagonals for testing
-    for (int i = 0; i < p_n; i++) {
-        rows.push_back(i);
-        cols.push_back(i);
-        values.push_back(i+1);
-    }
-    //creates the list using the three filled vectors
-    ll = SparseList (rows, cols, values);
-    //ll = tmp;
+SparseMatrix::SparseMatrix(){
+    this->numRows = 0;
+    this->numCols = 0;
+    this->head = nullptr;
+    this->tail = nullptr;
 }
+SparseMatrix::SparseMatrix(std::string fname){
+    std::fstream file(fname);
+    std::string line;
+    std::stringstream ss;
+    double double_value;
 
-//builds with vectors
-SparseMatrix::SparseMatrix(int p_rows, int p_cols, std::vector<int> p_rowVec, std::vector<int> p_colVec, std::vector<int> p_valueVec) {
-    //rows and cols
-    nRows = p_rows;
-    nCols = p_cols;
-    SparseList tmp(p_rowVec, p_colVec, p_valueVec);
-    ll = tmp;
-}
+    getline(file,line);
 
-//empty matrix
-SparseMatrix::SparseMatrix() {
-    nRows = 0;
-    nCols = 0;
-    ll = SparseList();
-}
+    ss << line;
+    ss >> this->numRows >> this->numCols;
 
-//decon
-SparseMatrix::~SparseMatrix() {
-}
-
-
-void SparseMatrix::output() {
-
-    //create zero vector with # of rows and cols
-    std::vector<std::vector<int>> full = zeroVector2d(this->nRows, this->nCols);
-
-    SparseNode* temp;
-    //first node (start at 0)
-    //<0,0,1,1>
-    temp = this->ll.getHead();
-
-    //fill 'full' with values, at the locations from getters
-    while (temp != nullptr) {
-        full[temp->getRow()][temp->getCol()] = temp->getValue();
-        temp = temp->getNext();
-    }
-
-    //prints values
-    for (int i = 0; i < nRows; i++) {
-        for (int j = 0; j < nCols; j++) {
-            std::cout << full[i][j] << " ";
+    int i = 0, j = 0;
+    while(getline(file,line)){
+        ss << line;
+        while(ss >> double_value){
+            if(double_value != 0.0){
+                this->push_back(i,j,double_value);
+            }
+            j++;
         }
-        std::cout << "\n";
+        i++;
+        j = 0;
     }
-
-    return;
+}
+SparseMatrix::SparseMatrix(std::vector<std::vector<double>> p_vector){
+    this->numRows = p_vector.size();
+    this->numCols = p_vector[0].size();
+    this->head = nullptr;
+    this->tail = nullptr;
+}
+SparseMatrix::~SparseMatrix(){
+    delete this->head;
+    this->head = nullptr;
 }
 
-//copy constructor
-SparseMatrix::SparseMatrix(const SparseMatrix& p_copySrc) {
-    std::cout << "Copying Constructor SparseMatrix\n";
+SparseMatrix::SparseMatrix(SparseMatrix& p_matrix){
+    this->numRows = p_matrix.getNumRows();
+    this->numCols = p_matrix.getNumCols();
+    this->head = nullptr;
+    this->tail = nullptr;
 
-    this->nRows = p_copySrc.nRows;
-    this->nCols = p_copySrc.nCols;
-    //creates new list (deep copy to prevent two maticies pointing to the same memory)
-    this->ll = SparseList(p_copySrc.ll);
-}
-
-//plus
-SparseMatrix SparseMatrix::operator+(const SparseMatrix &p_add) {
-    //creates left 2D vector from caller
-    std::vector<std::vector<int>> left = this->toVector2d();
-    //right side is passed in by parameter
-    std::vector<std::vector<int>> right = p_add.toVector2d();
-    //sum vector with all 0s
-    std::vector<std::vector<int>> sum = zeroVector2d(this->nCols, this->nCols);
-
-    //adds them together
-    for (int i = 0; i < this->nRows; i++) {
-        for (int j = 0; j < this->nCols; j++) {
-            sum[i][j] = left[i][j] + right[i][j];
-        }
+    SparseNode* temp = p_matrix.head;
+    while(temp != nullptr){
+        this->push_back(temp->getRow(), temp->getCol(), temp->getValue());
+        temp = temp->next;
     }
-    //new matrix created from the sum
-    return (SparseMatrix(sum)) ;
 }
 
-//multiplier
-SparseMatrix SparseMatrix::operator*(const SparseMatrix &p_mult) {
-    //creates left 2D vector from caller
-    std::vector<std::vector<int>> left = this->toVector2d();
-    //right side is passed in by parameter
-    std::vector<std::vector<int>> right = p_mult.toVector2d();
-    //sum vector with all 0s
-    std::vector<std::vector<int>> sum = zeroVector2d(this->nCols, this->nCols);
+SparseMatrix SparseMatrix::multiply(SparseMatrix& A, SparseMatrix& B){}
+SparseMatrix SparseMatrix::add(SparseMatrix& A, SparseMatrix& B){}
 
-    //two vectors, left and right
-    std::vector<int> leftProduct;
-    std::vector<int> rightProduct;
-
-    //adds them together
-    for (int i = 0; i < this->nRows; i++) {
-        for (int j = 0; j < this->nCols; j++) {
-//            leftProduct.push_back(left[i][j]);
-//            rightProduct.push_back(right[j][i]);
-
-            sum[i][j] += left[i][j] * right[j][i];
-
-            //sum[i][j] = left[i][j] + right[i][j];
-
-        }
-    }
-
-
-
-    //new matrix created from the sum
-    return (SparseMatrix(sum)) ;
+SparseMatrix SparseMatrix::operator*(SparseMatrix& p_matrix){
+    return this->multiply(*this,p_matrix);
+}
+SparseMatrix SparseMatrix::operator+(SparseMatrix& p_matrix){
+    return this->add(*this,p_matrix);
 }
 
-//insert
-void SparseMatrix::insert(int p_row, int p_col, int p_val){
-    ll.push_front(p_row, p_col, p_val);
+bool SparseMatrix::can_multiply(SparseMatrix& A, SparseMatrix& B){
+    return A.getNumCols() == B.getNumRows();
 }
 
-
-//being passed in a full 2D matrix
-SparseMatrix::SparseMatrix(std::vector<std::vector<int>> p_vector) {
-    //gets rows and collumns
-    nRows = p_vector.size();
-    nCols = p_vector.at(0).size();
-    //vectors
-    std::vector<int> values;
-    std::vector<int> rows;
-    std::vector<int> cols;
-    // goes through list, when vector isn't a 0,
-    // store values in vectors
-    for (int i = 0; i < this->nRows; i++) {
-        for (int j = 0; j < this->nCols; j++) {
-            if (p_vector[i][j] != 0) {
-                rows.push_back(i);
-                cols.push_back(j);
-                values.push_back(p_vector[i][j]);
+void SparseMatrix::print(std::ostream& os){
+    os << std::fixed << std::setprecision(2);
+    SparseNode* temp = this->head;
+    for(int i = 0; i < this->getNumRows(); i++){
+        for(int j = 0; j < this->getNumCols(); j++){
+            if(temp != nullptr){
+                if(i == temp->getRow() && j == temp->getCol()){
+                    os << temp->getValue() << " ";
+                    temp = temp->next;
+                }else{os << 0.00 << " ";}
             }
         }
+        os << std::endl;
     }
-    //pass made vectors into list constructor
-    ll = SparseList (rows, cols, values);
-    //ll = temp;
 }
 
-//turns Sparse matrix into 2D matrix
-std::vector<std::vector<int>> SparseMatrix::toVector2d() const {
-    std::vector<std::vector<int>> full = zeroVector2d(this->nRows, this->nCols);
-
-    SparseNode* temp;
-    temp = this->ll.getHead();
-
-    while (temp != nullptr) {
-        full[temp->getRow()][temp->getCol()] = temp->getValue();
-        temp = temp->getNext();
-    }
-
-
-    return (full);
-}
-
-//creates zero matrix
-std::vector<std::vector<int>> SparseMatrix::zeroVector2d(int p_row, int p_col) const {
-    std::vector<std::vector<int>> zero;
-
-    //rows (each is a vector)
-    for (int i = 0; i < p_row; i++) {
-        std::vector<int> temp;
-        //cols (another vector)
-        for (int j = 0; j < p_col; j++) {
-            temp.push_back(0);
-        }
-        //pushes 0 vector from temp to zero matrix
-        zero.push_back(temp);
-    }
-
-    return zero;
-}
-*/
-
-
-
+int SparseMatrix::getNumRows(){return this->numRows;}
+int SparseMatrix::getNumCols(){return this->numCols;}
 
 /*
-    std::vector<std::vector<int>> left;
-    for (int i = 0; i < this->nRows; i++) {
-        std::vector<int> temp;
-        for (int j = 0; j < this->nCols; j++) {
-            temp.push_back(0);
-        }
-        left.push_back(temp);
+//constructor
+SparseList::SparseList(std::vector<int> p_rowVec, std::vector<int> p_colVec, std::vector<int> p_valueVec) {
+    this->head = nullptr;
+    for (int i = 0; i < p_rowVec.size(); i++) {
+        push_front(p_rowVec.at(i), p_colVec.at(i), p_valueVec.at(i));
     }
+};
 
-    for (int i = 0; i < this->values.size(); i++) {
-        left[this->rows.at(i)][this->cols.at(i)] = this->values.at(i);
-    }
-
-    */
-
-/*
-std::vector<std::vector<int>> right;
-for (int i = 0; i < p_add.nRows; i++) {
-    std::vector<int> temp;
-    for (int j = 0; j < p_add.nCols; j++) {
-        temp.push_back(0);
-    }
-    right.push_back(temp);
+void SparseList::push_front(int p_row, int p_col, int p_value) {
+    SparseNode *newNode = new SparseNode(p_row, p_col, p_value, this->head);
+    this->head = newNode;
 }
 
-for (int i = 0; i < p_add.values.size(); i++) {
-    right[p_add.rows.at(i)][p_add.cols.at(i)] = p_add.values.at(i);
+SparseList::~SparseList() {
+    head = nullptr;
 }
-*/
 
-
-
-/*    std::vector<std::vector<int>> full;
-
-    for (int i = 0; i < this->nRows; i++) {
-        std::vector<int> temp;
-        for (int j = 0; j < this->nCols; j++) {
-            temp.push_back(0);
-        }
-        full.push_back(temp);
+//Copy Constructor
+SparseList::SparseList(const SparseList& p_copySrc) {
+    //std::cout << "Copy Constructor SparseList\n";
+    this->head = nullptr;
+    SparseNode * last = nullptr;
+    SparseNode* tmp = p_copySrc.getHead();
+    while(tmp != nullptr){
+        this->head = new SparseNode(tmp->getRow(), tmp->getCol(), tmp->getValue(), this->head);
+        tmp = tmp->getNext();
     }
+
+}
+
+
+std::string SparseList::toString() {
+    std::string stringified;
+    SparseNode* tmp = this->head;
+    while(tmp != nullptr){
+        stringified += "[" + std::to_string(tmp->posRow) + "][";
+        stringified += std::to_string(tmp->posCol) + "]:";
+        stringified += std::to_string(tmp->posValue) + " ";
+        tmp = tmp->next;
+    }
+    return stringified;
+}
+
+void SparseList::output() {
+    std::string stringified;
+    SparseNode* tmp = this->head;
+    while(tmp != nullptr){
+        stringified += "[" + std::to_string(tmp->posRow) + "][";
+        stringified += std::to_string(tmp->posCol) + "]:";
+        stringified += std::to_string(tmp->posValue) + "/n";
+        std::cout << stringified;
+        stringified = "";
+        tmp = tmp->next;
+    }
+}
+
+SparseNode * SparseList::getHead() const {
+    return this->head;
+}
+
+SparseList::SparseList() {
+
+}
 */

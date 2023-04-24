@@ -1,50 +1,50 @@
-/*#ifndef DSA_DRAFT_SPARSEMATRIX_H
-#define DSA_DRAFT_SPARSEMATRIX_H
+#pragma once
 
-#include <vector>
 #include <iostream>
-#include "SparseList.h"
+#include <iomanip>
+#include <string>
+#include <vector>
+#include <fstream>
+#include <sstream>
+#include <ostream>
+#include "SparseNode.h"
 
 class SparseMatrix {
-
 private:
-    int nRows;
-    int nCols;
-    //sparse list
-    SparseList ll;
 
-    //creates 2D Zero vector
-    //based on number of rows and cols
-    //3 & 3 -> creates 3x3 matrix with 0s
-    std::vector<std::vector<int>> zeroVector2d(int p_row, int p_col) const;
+    SparseNode* head;
+    SparseNode* tail;
+    int numRows; // Number of rows, used for size
+    int numCols; // Number of columns, used for size
 
+    void push_back(int,int,double);
+    void push_front(int,int,double);
+    void remove(int,int);
+
+    bool can_multiply(SparseMatrix& A, SparseMatrix& B);
+    
 
 public:
-    //creates nxn matrix with diagonals, for testing
-    SparseMatrix(int p_n);
+
     SparseMatrix();
-    SparseMatrix(const SparseMatrix& p_copySrc);
-    SparseMatrix(const std::vector<std::vector<int>> p_vector);
-    //3 vectors
-    //read from file to populate 3 vectors, then call this constuctor to create the matrix
-    SparseMatrix(int p_rows, int p_cols,std::vector<int> p_rowVec, std::vector<int> p_colVec, std::vector<int> p_valueVec);
+    SparseMatrix(std::string);
+    SparseMatrix(std::vector<std::vector<double>>);
     ~SparseMatrix();
 
-    //converts curent sparse matrix into a 2D matrix
-    std::vector<std::vector<int>> toVector2d() const;
-    void output();
+    SparseMatrix(SparseMatrix&);
 
-    //addition operator+ overload+
-    SparseMatrix operator+(const SparseMatrix& p_add);
+    SparseMatrix multiply(SparseMatrix& A, SparseMatrix& B);
+    SparseMatrix add(SparseMatrix& A, SparseMatrix& B);
 
-    //multipulcation operator
-    SparseMatrix operator*(const SparseMatrix& p_mult);
+    SparseMatrix operator*(SparseMatrix& p_matrix);
+    SparseMatrix operator+(SparseMatrix& p_matrix);
+    
+    void modify(int,int,double);
 
-    //insert
-    void insert(int p_row, int p_col, int p_val);
+    void print(std::ostream& os = std::cout);
+
+    int getNumRows();
+    int getNumCols();
+    SparseNode* getHead();
+    SparseNode* getTail();
 };
-
-
-
-#endif //DSA_DRAFT_SPARSEMATRIX_H
-*/
