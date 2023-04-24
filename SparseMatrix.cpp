@@ -65,7 +65,28 @@ SparseMatrix::SparseMatrix(SparseMatrix& p_matrix){
 }
 
 SparseMatrix SparseMatrix::multiply(SparseMatrix& A, SparseMatrix& B){}
-SparseMatrix SparseMatrix::add(SparseMatrix& A, SparseMatrix& B){}
+SparseMatrix SparseMatrix::add(SparseMatrix& A, SparseMatrix& B){
+    SparseMatrix output = SparseMatrix(A.getNumRows(),A.getNumCols());
+
+    SparseNode* A_node = A.getHead();
+    SparseNode* B_node = B.getHead();
+
+    while(A_node != nullptr || B_node != nullptr){
+        if(A_node > B_node){
+            output.push_back(A_node->getRow(),A_node->getCol(),A_node->getValue());
+            A_node = A_node->getNext();
+        }else if(A_node < B_node){
+            output.push_back(B_node->getRow(),B_node->getCol(),B_node->getValue());
+            B_node = B_node->getNext();
+        }else{
+            output.push_back(A_node->getRow(),A_node->getCol(),A_node->getValue() + B_node->getValue());
+            A_node = A_node->getNext();
+            B_node = B_node->getNext();
+        }
+    }
+
+    return output;
+}
 
 SparseMatrix SparseMatrix::operator*(SparseMatrix& p_matrix){
     return this->multiply(*this,p_matrix);
