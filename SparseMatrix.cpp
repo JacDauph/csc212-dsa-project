@@ -17,27 +17,31 @@ SparseMatrix::SparseMatrix(int p_numRows, int p_numCols){
     this->tail = nullptr;
 }
 SparseMatrix::SparseMatrix(std::string fname){
+
+    this->head = nullptr;
+    this->tail = nullptr;
+
     std::fstream file(fname);
     std::string line;
     std::stringstream ss;
     double double_value;
+    int test;
 
     getline(file,line);
-
     ss << line;
     ss >> this->numRows >> this->numCols;
+    ss.clear();
 
-    int i = 0, j = 0;
-    while(getline(file,line)){
+    for(int i = 0; i < this->getNumRows(); i++){
+        getline(file,line);
         ss << line;
-        while(ss >> double_value){
+        for(int j = 0; j < this->getNumCols(); j++){
+            ss >> double_value;
             if(double_value != 0.0){
                 this->push_back(i,j,double_value);
             }
-            j++;
         }
-        i++;
-        j = 0;
+        ss.clear();
     }
 }
 SparseMatrix::SparseMatrix(std::vector<std::vector<double>> p_vector){
@@ -45,6 +49,15 @@ SparseMatrix::SparseMatrix(std::vector<std::vector<double>> p_vector){
     this->numCols = p_vector[0].size();
     this->head = nullptr;
     this->tail = nullptr;
+
+    for (int i = 0; i < this->getNumRows(); i++){
+        for (int j = 0; j < this->getNumCols(); j++){
+            if(p_vector[i][j] != 0.0){
+                this->push_back(i,j,p_vector[i][j]);
+            }
+        }
+    }
+
 }
 SparseMatrix::~SparseMatrix(){
     delete this->head;
@@ -72,10 +85,12 @@ SparseMatrix SparseMatrix::add(SparseMatrix& A, SparseMatrix& B){
     SparseNode* B_node = B.getHead();
 
     while(A_node != nullptr || B_node != nullptr){
-        if(A_node > B_node){
+        //std::cout << A_node << std::endl;
+        //std::cout << B_node << std::endl << std::endl;
+        if(*A_node < *B_node){
             output.push_back(A_node->getRow(),A_node->getCol(),A_node->getValue());
             A_node = A_node->getNext();
-        }else if(A_node < B_node){
+        }else if(*A_node > *B_node){
             output.push_back(B_node->getRow(),B_node->getCol(),B_node->getValue());
             B_node = B_node->getNext();
         }else{
@@ -103,7 +118,7 @@ bool SparseMatrix::can_add(SparseMatrix& A, SparseMatrix& B){
 }
 
 void SparseMatrix::print(std::ostream& os){
-    os << std::fixed << std::setprecision(2);
+    os << std::setprecision(2);
     SparseNode* temp = this->head;
     for(int i = 0; i < this->getNumRows(); i++){
         for(int j = 0; j < this->getNumCols(); j++){
@@ -120,8 +135,10 @@ void SparseMatrix::print(std::ostream& os){
 
 int SparseMatrix::getNumRows(){return this->numRows;}
 int SparseMatrix::getNumCols(){return this->numCols;}
+SparseNode* SparseMatrix::getHead(){return this->head;}
+SparseNode* SparseMatrix::getTail(){return this->tail;}
 
-void SparseMatrix::push_back(int m, int n, double value){ // Specifically for ease of copying sparse matricies
+void SparseMatrix::push_back(int m, int n, double value){
     if(this->head == nullptr){
         this->head = new SparseNode(m,n,value);
         this->tail = this->head;

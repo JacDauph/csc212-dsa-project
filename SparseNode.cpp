@@ -50,15 +50,15 @@ SparseNode *SparseNode::getNext() {
 
 // Checks to see if the position of the node is more upper-left in the matrix
 bool SparseNode::operator<(SparseNode& p_node){
-    if(&p_node == nullptr && this != nullptr){return true;}
-    if(this == nullptr && &p_node != nullptr){return false;}
+    if(&p_node == nullptr && this != nullptr){return false;}
+    if(this == nullptr && &p_node != nullptr){return true;}
     return (this->getRow() < p_node.getRow()) ? true: (this->getRow() > p_node.getRow()) ? false: (this->getCol() < p_node.getCol()) ? true:false;
 }
 
 // Checks to see if the position of the node is more lower-right in the matrix
 bool SparseNode::operator>(SparseNode& p_node){
-    if(&p_node == nullptr && this != nullptr){return false;}
-    if(this == nullptr && &p_node != nullptr){return true;}
+    if(&p_node == nullptr && this != nullptr){return true;}
+    if(this == nullptr && &p_node != nullptr){return false;}
     return (this->getRow() > p_node.getRow()) ? true: (this->getRow() < p_node.getRow()) ? false: (this->getCol() > p_node.getCol()) ? true:false;
 }
 
