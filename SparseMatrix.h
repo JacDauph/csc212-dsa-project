@@ -16,10 +16,12 @@ private:
     SparseNode* tail;
     int numRows; // Number of rows, used for size
     int numCols; // Number of columns, used for size
+    int length = 0;
 
     void push_back(int,int,double);
     void push_front(int,int,double);
     void remove(int,int);
+    void insert(int,int,double);
 
     bool can_multiply(SparseMatrix& A, SparseMatrix& B);
     bool can_add(SparseMatrix& A, SparseMatrix& B);
@@ -37,6 +39,7 @@ public:
 
     SparseMatrix multiply(SparseMatrix& A, SparseMatrix& B);
     SparseMatrix add(SparseMatrix& A, SparseMatrix& B);
+    SparseMatrix transpose();
 
     SparseMatrix operator*(SparseMatrix& p_matrix);
     SparseMatrix operator+(SparseMatrix& p_matrix);
@@ -47,6 +50,7 @@ public:
 
     int getNumRows();
     int getNumCols();
+    int len();
     SparseNode* getHead();
     SparseNode* getTail();
 };

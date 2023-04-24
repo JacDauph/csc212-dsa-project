@@ -39,6 +39,7 @@ SparseMatrix::SparseMatrix(std::string fname){
             ss >> double_value;
             if(double_value != 0.0){
                 this->push_back(i,j,double_value);
+                this->length++;
             }
         }
         ss.clear();
@@ -54,6 +55,7 @@ SparseMatrix::SparseMatrix(std::vector<std::vector<double>> p_vector){
         for (int j = 0; j < this->getNumCols(); j++){
             if(p_vector[i][j] != 0.0){
                 this->push_back(i,j,p_vector[i][j]);
+                this->length++;
             }
         }
     }
@@ -67,6 +69,7 @@ SparseMatrix::~SparseMatrix(){
 SparseMatrix::SparseMatrix(SparseMatrix& p_matrix){
     this->numRows = p_matrix.getNumRows();
     this->numCols = p_matrix.getNumCols();
+    this->length = p_matrix.len();
     this->head = nullptr;
     this->tail = nullptr;
 
@@ -77,12 +80,67 @@ SparseMatrix::SparseMatrix(SparseMatrix& p_matrix){
     }
 }
 
-SparseMatrix SparseMatrix::multiply(SparseMatrix& A, SparseMatrix& B){}
+SparseMatrix SparseMatrix::multiply(SparseMatrix& A, SparseMatrix& B){
+    SparseMatrix output = SparseMatrix(A.getNumCols(),B.getNumRows());
+
+    SparseMatrix transpose_B = B.transpose();
+
+    SparseNode* A_node = A.getHead();
+    SparseNode* B_node = transpose_B.getHead();
+
+    if(!can_multiply(A,B)){std::cout << "Error: Invalid matrix multiplication" << std::endl;return output;}
+
+    while(A_node != nullptr){
+        int current_row = A_node->getRow();
+
+        B_node = transpose_B.getHead();
+
+        while(B_node != nullptr){
+            int current_col = B_node->getRow();
+
+            SparseNode* temp_A = A_node;
+            SparseNode* temp_B = B_node;
+
+            int sum = 0;
+
+            while(temp_A != nullptr && temp_A->getRow() == current_row && 
+                temp_B != nullptr && temp_B->getRow() == current_col){
+                
+                if(temp_A->getCol() < temp_B->getCol()){
+
+                    temp_A = temp_A->getNext();
+
+                }else if(temp_A->getCol() > temp_B->getCol()){
+
+                    temp_B = temp_B->getNext();
+
+                }else{
+                    sum += temp_A->getValue() * temp_B->getValue();
+                    temp_A = temp_A->getNext();
+                    temp_B = temp_B->getNext();
+                }
+
+            }
+            if(sum != 0.0){
+                output.insert(current_row,current_col,sum);
+            }
+            while(B_node != nullptr && B_node->getRow() == current_col){
+                B_node = B_node->getNext();
+            }
+        }
+        while(A_node != nullptr && A_node->getRow() == current_row){
+                A_node = A_node->getNext();
+        }
+    }
+    return output;
+}
 SparseMatrix SparseMatrix::add(SparseMatrix& A, SparseMatrix& B){
     SparseMatrix output = SparseMatrix(A.getNumRows(),A.getNumCols());
 
     SparseNode* A_node = A.getHead();
     SparseNode* B_node = B.getHead();
+
+    if(!can_add(A,B)){std::cout << "Error: Invalid matrix addition" << std::endl;return output;}
 
     while(A_node != nullptr || B_node != nullptr){
         //std::cout << A_node << std::endl;
@@ -98,6 +156,17 @@ SparseMatrix SparseMatrix::add(SparseMatrix& A, SparseMatrix& B){
             A_node = A_node->getNext();
             B_node = B_node->getNext();
         }
+    }
+
+    return output;
+}
+SparseMatrix SparseMatrix::transpose(){
+    SparseMatrix output = SparseMatrix(this->getNumRows(),this->getNumCols());
+    SparseNode* node = this->getHead();
+
+    while(node != nullptr){
+        output.insert(node->getCol(),node->getRow(),node->getValue());
+        node = node->getNext();
     }
 
     return output;
@@ -135,6 +204,7 @@ void SparseMatrix::print(std::ostream& os){
 
 int SparseMatrix::getNumRows(){return this->numRows;}
 int SparseMatrix::getNumCols(){return this->numCols;}
+int SparseMatrix::len(){return this->length;}
 SparseNode* SparseMatrix::getHead(){return this->head;}
 SparseNode* SparseMatrix::getTail(){return this->tail;}
 
@@ -143,14 +213,10 @@ void SparseMatrix::push_back(int m, int n, double value){
         this->head = new SparseNode(m,n,value);
         this->tail = this->head;
     }else{
-        SparseNode* temp = this->head;
-
-        while(temp->next != nullptr){
-            temp = temp->next;
-        }
-
-        temp->next = new SparseNode(m,n,value);
+        this->tail->next = new SparseNode(m,n,value,this->tail->next);
+        this->tail = this->tail->next;
     }
+    this->length++;
 }
 void SparseMatrix::push_front(int m, int n, double value){
     if(this->head == nullptr){
@@ -160,6 +226,7 @@ void SparseMatrix::push_front(int m, int n, double value){
         SparseNode* temp = new SparseNode(m,n,value, this->head);
         this->head = temp;
     }
+    this->length++;
 }
 void SparseMatrix::remove(int m, int n){
     SparseNode* temp = this->head;
@@ -182,6 +249,31 @@ void SparseMatrix::remove(int m, int n){
 
         temp->next = nullptr;
         delete temp;
+    }
+    this->length--;
+}
+void SparseMatrix::insert(int m, int n, double value){
+    SparseNode test_node = SparseNode(m,n,0);
+    
+    if(!this->head){    // this->head == nullptr
+        this->head = new SparseNode(m,n,value);
+        this->tail = this->head;
+    }else if(test_node < *(this->head)){
+        this->push_front(m,n,value);
+        return;
+    }else if(*(this->tail) < test_node){
+        this->push_back(m,n,value);
+        return;
+    }else{
+        SparseNode* tmp = this->head;
+
+        while(*(tmp->next) < test_node){
+            tmp = tmp->next;
+        }
+        SparseNode* tmp2 = new SparseNode(m,n,value,tmp->next);
+        //tmp2->next = tmp->next;
+        tmp->next = tmp2;
+        this->length++;
     }
 }
 /*
