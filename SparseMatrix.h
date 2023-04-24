@@ -43,6 +43,8 @@ public:
 
     SparseMatrix operator*(SparseMatrix& p_matrix);
     SparseMatrix operator+(SparseMatrix& p_matrix);
+    SparseMatrix operator=(SparseMatrix p_matrix);
+    SparseMatrix operator^(int p_power);
     
     void modify(int,int,double);
 

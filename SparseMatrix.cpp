@@ -178,6 +178,33 @@ SparseMatrix SparseMatrix::operator*(SparseMatrix& p_matrix){
 SparseMatrix SparseMatrix::operator+(SparseMatrix& p_matrix){
     return this->add(*this,p_matrix);
 }
+SparseMatrix SparseMatrix::operator=(SparseMatrix p_matrix){
+    if(this != &p_matrix){
+        this->numRows = p_matrix.getNumRows();
+        this->numCols = p_matrix.getNumCols();
+        this->length = p_matrix.len();
+        delete this->head;
+        this->head = nullptr;
+        this->tail = nullptr;
+
+        SparseNode* temp = p_matrix.head;
+        while(temp != nullptr){
+            this->push_back(temp->getRow(), temp->getCol(), temp->getValue());
+            temp = temp->next;
+        }
+    }
+    return *this;
+}
+SparseMatrix SparseMatrix::operator^(int p_power){
+    SparseMatrix output = SparseMatrix(*this);
+    output.print();
+    std::cout << output.getHead() << std::endl;
+    std::cout << (*this).getHead() << std::endl;
+    for(int i = 1; i < p_power; i++){
+        output = (output * *this);
+    }
+    return output;
+}
 
 bool SparseMatrix::can_multiply(SparseMatrix& A, SparseMatrix& B){
     return A.getNumCols() == B.getNumRows();
