@@ -35,12 +35,10 @@ int main(int argc, char*argv[]) {
 
     pre_transition_vector = file_to_vector(fname);
     SparseMatrix transition = SparseMatrix(pre_transition_vector);
-    transition.print();
-
+    
     do{
     std::cout << "Please enter which node to start at: ";
     std::cin >> node;
-    //std::cout << !(isdigit(node)) << std::endl;
     }while(isdigit(node));
 
     if(node > transition.getNumCols() || node > transition.getNumRows()){
@@ -66,16 +64,11 @@ int main(int argc, char*argv[]) {
         }
     }
 
-    //Possible one liner for for loop above
-    // for(int i = 0; i <= transition.getNumRows(); i++) initial_vector[0].push_back(i == node ? 1 : 0);
-
     SparseMatrix initial_matrix = SparseMatrix(initial_vector);
 
-    SparseMatrix partial = transition * transition;
-    partial.print();
+    SparseMatrix partial = transition^n;
 
-    std::cout << transition.getHead() << std::endl;
-    std::cout << partial.getHead() << std::endl;
+   
 
     SparseMatrix state_matrix = (initial_matrix * partial);
 
