@@ -1,32 +1,31 @@
-#ifndef DSA_DRAFT_SPARSENODE_H
-#define DSA_DRAFT_SPARSENODE_H
-
-
-#include <iostream>
+#pragma once
 
 class SparseNode {
 
 private:
-    int posRow;
-    int posCol;
-    int posValue;
+    int row;
+    int col;
+    double value;
     SparseNode* next;
 
-    friend class SparseList;
+    friend class SparseMatrix;
 
 public:
-    SparseNode(int p_row, int p_col, int p_val);
-    SparseNode(int p_row, int p_col, int p_val, SparseNode* p_next);
+    SparseNode(int p_row, int p_col, double p_val);
+    SparseNode(int p_row, int p_col, double p_val, SparseNode* p_next);
     ~SparseNode();
+
     int getRow();
     int getCol();
     int getValue();
     SparseNode *getNext();
-    //copy constructor
-    SparseNode(const SparseNode& p_copySrc);
-    void output();
+
+    // Comparison overloads, allows to see if a node is in a position higher or lower than a given node
+    bool operator<(SparseNode&);
+    bool operator>(SparseNode&);
+    bool operator==(SparseNode&);
+
+    // Copy constructor
+    SparseNode(SparseNode& p_copySrc);
 
 };
-
-
-#endif //DSA_DRAFT_SPARSENODE_H
