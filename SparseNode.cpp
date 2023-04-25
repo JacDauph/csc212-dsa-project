@@ -30,10 +30,6 @@ SparseNode::~SparseNode() {
     }
 }
 
-//void SparseNode::output() {
-//    std::cout << this->row << "\t" << this->col << "\t" << this->value << "\t" << this->next << "\n";
-//}
-
 int SparseNode::getRow() {
     return row;
 }
