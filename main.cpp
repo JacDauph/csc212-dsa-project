@@ -5,20 +5,20 @@ std::vector<std::vector<double>> file_to_vector(std::string fname){
     std::vector<std::vector<double>> output;
     std::ifstream file(fname);
 
-    std::string line;
+    std::string line,temp;
+    getline(file,temp); // Gets rid of initial row col counts
     
     while (std::getline(file, line))
     {
-        std::stringstream ss(line);
+        //std::cout << line << std::endl;
+        std::istringstream iss(line);
         std::vector<double> row;
-
         double val;
-        while (ss >> val)
+        while (iss >> val)
         {
             // Add the value to the row
             row.push_back(val);
         }
-
         // Add the row to the output vector
         output.push_back(row);
     }
@@ -38,12 +38,11 @@ int main(int argc, char*argv[]) {
     
     // Initialize transition matrix 
     SparseMatrix transition = SparseMatrix(pre_transition_vector);
-    
-    // Do while loop for user input that gets starting node, only accepts integer values
+
     do{
     std::cout << "Please enter which node to start at: ";
     std::cin >> node;
-    }while(isdigit(node));
+    }while(typeid(node) != typeid(int));
     
     // Checks if starting node is within range of the transition matrix
     if(node > transition.getNumCols() || node > transition.getNumRows()){
@@ -57,7 +56,7 @@ int main(int argc, char*argv[]) {
     do{
     std::cout << "Please enter the amount of iterations: ";
     std::cin >> n;
-    }while(isdigit(n));
+    }while(typeid(n) != typeid(int));
     
     // For loop to fill the intiial vector
     initial_vector.push_back({});
@@ -75,7 +74,6 @@ int main(int argc, char*argv[]) {
     
     // Calculates the P^n, needed to find X sub n.
     SparseMatrix partial = transition^n;
-
    
     // Equation where X sub n = intial matrix * P^n
     SparseMatrix state_matrix = (initial_matrix * partial);

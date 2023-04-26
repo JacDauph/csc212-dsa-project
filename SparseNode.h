@@ -17,7 +17,7 @@ public:
 
     int getRow();
     int getCol();
-    int getValue();
+    double getValue();
     SparseNode *getNext();
 
     // Comparison overloads, allows to see if a node is in a position higher or lower than a given node

@@ -55,7 +55,6 @@ SparseMatrix::SparseMatrix(std::vector<std::vector<double>> p_vector){
         for (int j = 0; j < this->getNumCols(); j++){
             if(p_vector[i][j] != 0.0){
                 this->push_back(i,j,p_vector[i][j]);
-                this->length++;
             }
         }
     }
@@ -113,7 +112,7 @@ SparseMatrix SparseMatrix::multiply(SparseMatrix& A, SparseMatrix& B){
             SparseNode* temp_B = B_node;
 
             // Sum of the multiplied values
-            int sum = 0;
+            double sum = 0;
 
             // Multiplication check for all values applicable
             while(temp_A != nullptr && temp_A->getRow() == current_row && 
@@ -243,16 +242,18 @@ bool SparseMatrix::can_add(SparseMatrix& A, SparseMatrix& B){
 
 //Print method for sparse matrices
 void SparseMatrix::print(std::ostream& os){
-    os << std::fixed << std::setprecision(2);
+    os << std::setprecision(6);
     SparseNode* temp = this->head;
     for(int i = 0; i < this->getNumRows(); i++){
         for(int j = 0; j < this->getNumCols(); j++){
-            if(temp != nullptr){
+            if(temp == nullptr){os << 0 << " ";
+            }else{
                 if(i == temp->getRow() && j == temp->getCol()){
                     os << temp->getValue() << " ";
                     temp = temp->next;
-                }else{os << 0.00 << " ";}
+                }else{os << 0 << " ";}
             }
+            
         }
         os << std::endl;
     }
@@ -269,15 +270,10 @@ SparseNode* SparseMatrix::getTail(){return this->tail;}
 void SparseMatrix::push_back(int m, int n, double value){
     if(this->head == nullptr){
         this->head = new SparseNode(m,n,value);
-        // Assign tail
+        this->tail = this->head;
     }else{
-        SparseNode* tmp = this->head;
-
-        while(tmp->next != nullptr){
-            tmp = tmp->next;
-        }
-
-        tmp->next = new SparseNode(m,n,value);
+        this->tail->next = new SparseNode(m,n,value);
+        this->tail = this->tail->next;
     }
 
     this->length++;
