@@ -36,7 +36,7 @@ int SparseNode::getRow() {
 int SparseNode::getCol() {
     return col;
 }
-int SparseNode::getValue() {
+double SparseNode::getValue() {
     return value;
 }
 
